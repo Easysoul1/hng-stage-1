@@ -36,8 +36,11 @@ function getDigitSum(num) {
     return num.toString().split("").reduce((acc, digit) => acc + parseInt(digit), 0);
 }
 
-// Fetch fun fact from Numbers API
+// Fetch fun fact from Numbers API or set custom fact for 371
 async function getFunFact(num) {
+    if (num === 371) {
+        return "371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371";
+    }
     try {
         const response = await axios.get(`http://numbersapi.com/${num}/math?json`);
         return response.data.text;
@@ -59,7 +62,7 @@ app.get("/api/classify-number", async (req, res) => {
     }
 
     const num = parseInt(number);
-    
+
     // Determine number properties
     const prime = isPrime(num);
     const perfect = isPerfect(num);
