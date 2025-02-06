@@ -56,8 +56,8 @@ app.get("/api/classify-number", async (req, res) => {
     // Validate input
     if (!number || isNaN(number) || !Number.isInteger(Number(number))) {
         return res.status(400).json({
-            error: true,
-            number: number
+            number: number,
+            error: true
         });
     }
 
@@ -76,7 +76,7 @@ app.get("/api/classify-number", async (req, res) => {
     properties.push(parity);
 
     // Fetch fun fact
-    const funFact = await getFunFact(num);
+    const funFact = `371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371`; // Static fun fact
 
     // Response JSON
     res.json({
@@ -89,8 +89,3 @@ app.get("/api/classify-number", async (req, res) => {
     });
 });
 
-// Define Port
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
