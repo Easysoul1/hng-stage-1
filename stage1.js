@@ -16,6 +16,7 @@ function isPrime(num) {
 
 // Function to check if a number is a perfect number
 function isPerfect(num) {
+    if (num < 2) return false;
     let sum = 0;
     for (let i = 1; i < num; i++) {
         if (num % i === 0) sum += i;
@@ -25,15 +26,17 @@ function isPerfect(num) {
 
 // Function to check if a number is an Armstrong number
 function isArmstrong(num) {
-    const digits = num.toString().split("").map(Number);
+    const absoluteNum = Math.abs(num);
+    const digits = absoluteNum.toString().split("").map(Number);
     const power = digits.length;
     const sum = digits.reduce((acc, digit) => acc + Math.pow(digit, power), 0);
-    return sum === num;
+    return sum === absoluteNum;
 }
 
 // Function to get the sum of digits
 function getDigitSum(num) {
-    return num.toString().split("").reduce((acc, digit) => acc + parseInt(digit), 0);
+    const absoluteNum = Math.abs(num);
+    return absoluteNum.toString().split("").reduce((acc, digit) => acc + parseInt(digit), 0);
 }
 
 // Fetch fun fact from Numbers API or set custom fact for 371
