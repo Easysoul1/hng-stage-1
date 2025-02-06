@@ -1,11 +1,8 @@
 const express = require("express");
 const cors = require("cors");
-const axios = require("axios");
 
 const app = express();
 app.use(cors());
-
-const PORT = process.env.PORT || 3000; // Ensure the server binds to a port
 
 // Function to check if a number is prime
 function isPrime(num) {
@@ -18,6 +15,7 @@ function isPrime(num) {
 
 // Function to check if a number is a perfect number
 function isPerfect(num) {
+    if (num < 1) return false;
     let sum = 0;
     for (let i = 1; i < num; i++) {
         if (num % i === 0) sum += i;
@@ -27,38 +25,36 @@ function isPerfect(num) {
 
 // Function to check if a number is an Armstrong number
 function isArmstrong(num) {
-    const digits = num.toString().split("").map(Number);
+    const digits = Math.abs(num).toString().split("").map(Number);
     const power = digits.length;
     const sum = digits.reduce((acc, digit) => acc + Math.pow(digit, power), 0);
-    return sum === num;
+    return sum === Math.abs(num);
 }
 
-// Function to get the sum of digits
+// Function to get the sum of digits (handles negative numbers correctly)
 function getDigitSum(num) {
-    return num.toString().split("").reduce((acc, digit) => acc + parseInt(digit), 0);
+    return Math.abs(num).toString().split("").reduce((acc, digit) => acc + parseInt(digit), 0);
 }
 
-// Fetch fun fact from Numbers API or set custom fact for 371
-async function getFunFact(num) {
-    if (num === 371) {
-        return "371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371";
-    }
-    try {
-        const response = await axios.get(`http://numbersapi.com/${num}/math?json`);
-        return response.data.text;
-    } catch (error) {
-        return "No fun fact available for this number.";
-    }
+// Function to classify number properties
+function classifyNumber(num) {
+    let properties = [];
+    if (isArmstrong(num)) properties.push("armstrong");
+    if (isPrime(num)) properties.push("prime");
+    if (isPerfect(num)) properties.push("perfect");
+    properties.push(num % 2 === 0 ? "even" : "odd");
+
+    return properties;
 }
 
 // API Endpoint
-app.get("/api/classify-number", async (req, res) => {
+app.get("/api/classify-number", (req, res) => {
     const { number } = req.query;
 
-    // Validate input
+    // Validate input (check if it's a valid integer)
     if (!number || isNaN(number) || !Number.isInteger(Number(number))) {
         return res.status(400).json({
-            number: number,
+            number,
             error: true,
             message: "Invalid input. Please enter a valid integer."
         });
@@ -66,36 +62,16 @@ app.get("/api/classify-number", async (req, res) => {
 
     const num = parseInt(number);
 
-    // Determine number properties
-    const prime = isPrime(num);
-    const perfect = isPerfect(num);
-    const armstrong = isArmstrong(num);
-    const digitSum = getDigitSum(num);
-    const parity = num % 2 === 0 ? "even" : "odd";
-
-    // Classify properties
-    let properties = [];
-    if (armstrong) properties.push("armstrong");
-    if (perfect) properties.push("perfect");
-    if (prime) properties.push("prime");
-    properties.push(parity);
-
-    // Fetch fun fact dynamically
-    const funFact = await getFunFact(num);
-
-    // Response JSON
+    // Build response JSON
     res.json({
         number: num,
-        is_prime: prime,
-        is_perfect: perfect,
-        is_armstrong: armstrong,
-        properties: properties,
-        digit_sum: digitSum,
-        fun_fact: funFact
+        is_prime: isPrime(num),
+        is_perfect: isPerfect(num),
+        properties: classifyNumber(num),
+        digit_sum: getDigitSum(num)
     });
 });
 
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
