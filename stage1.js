@@ -5,6 +5,8 @@ const axios = require("axios");
 const app = express();
 app.use(cors());
 
+const PORT = process.env.PORT || 3000; // Ensure the server binds to a port
+
 // Function to check if a number is prime
 function isPrime(num) {
     if (num < 2) return false;
@@ -57,7 +59,8 @@ app.get("/api/classify-number", async (req, res) => {
     if (!number || isNaN(number) || !Number.isInteger(Number(number))) {
         return res.status(400).json({
             number: number,
-            error: true
+            error: true,
+            message: "Invalid input. Please enter a valid integer."
         });
     }
 
@@ -73,19 +76,26 @@ app.get("/api/classify-number", async (req, res) => {
     // Classify properties
     let properties = [];
     if (armstrong) properties.push("armstrong");
+    if (perfect) properties.push("perfect");
+    if (prime) properties.push("prime");
     properties.push(parity);
 
-    // Fetch fun fact
-    const funFact = `371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371`; // Static fun fact
+    // Fetch fun fact dynamically
+    const funFact = await getFunFact(num);
 
     // Response JSON
     res.json({
         number: num,
         is_prime: prime,
         is_perfect: perfect,
+        is_armstrong: armstrong,
         properties: properties,
         digit_sum: digitSum,
         fun_fact: funFact
     });
 });
 
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
