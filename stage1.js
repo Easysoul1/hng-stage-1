@@ -56,8 +56,8 @@ app.get("/api/classify-number", async (req, res) => {
     // Validate input
     if (!number || isNaN(number) || !Number.isInteger(Number(number))) {
         return res.status(400).json({
-            number: number,
-            error: true
+            error: true,
+            number: number
         });
     }
 
