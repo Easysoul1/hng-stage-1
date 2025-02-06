@@ -5,6 +5,9 @@ const axios = require("axios");
 const app = express();
 app.use(cors());
 
+// In-memory cache for fun facts
+const funFactCache = new Map();
+
 // Function to check if a number is prime
 function isPrime(num) {
     if (num < 2) return false;
@@ -41,14 +44,27 @@ function getDigitSum(num) {
 
 // Fetch fun fact from Numbers API or set custom fact for 371
 async function getFunFact(num) {
-    if (num === 371) {
-        return "371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371";
+    // Check if the fun fact is already cached
+    if (funFactCache.has(num)) {
+        return funFactCache.get(num);
     }
+
+    // Custom fact for 371
+    if (num === 371) {
+        const fact = "371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371";
+        funFactCache.set(num, fact); // Cache the fact
+        return fact;
+    }
+
     try {
         const response = await axios.get(`http://numbersapi.com/${num}/math?json`);
-        return response.data.text;
+        const fact = response.data.text;
+        funFactCache.set(num, fact); // Cache the fact
+        return fact;
     } catch (error) {
-        return "No fun fact available for this number.";
+        const fact = "No fun fact available for this number.";
+        funFactCache.set(num, fact); // Cache the fact
+        return fact;
     }
 }
 
